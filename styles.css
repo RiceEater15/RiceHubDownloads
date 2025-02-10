@@ -1,9 +1,12 @@
-<style>
-body {
+ .body {
  font-family: Arial, sans-serif;
  margin: 0;
  adding: 0;
  background-color: black;
  color: white;
  overflow: hidden;
-        }
+ }    
+
+ .h1 {
+ margin-left: auto;
+ }
