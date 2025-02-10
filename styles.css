@@ -1,6 +1,9 @@
 <style>
 body {
-font-family:Arial,san-serif;
-
-background-color:black;
-
+ font-family: Arial, sans-serif;
+ margin: 0;
+ adding: 0;
+ background-color: black;
+ color: white;
+ overflow: hidden;
+        }
