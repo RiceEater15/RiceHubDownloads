@@ -4,7 +4,7 @@
  padding: 0;
  background-color: black;
  color: white;
- overflow: hidden;
+ overflow: scroll;
  }    
 
  h1 {
@@ -38,7 +38,7 @@ div {
     font-family: 'Roboto', sans-serif;
     max-width: 100%;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: scroll;
     word-wrap: break-word;
     text-align: center;
     /* its like measurement systems, either work (i prefer px tho tbf) */
@@ -51,7 +51,7 @@ div {
     font-family: 'Roboto', sans-serif;
     max-width: 50%;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: scroll;
     word-wrap: break-word;
     text-align: center;
     /* its like measurement systems, either work (i prefer px tho tbf) */
