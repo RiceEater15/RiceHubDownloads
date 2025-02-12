@@ -41,7 +41,7 @@ div {
     overflow: scroll;
     word-wrap: break-word;
     text-align: center;
-    display: inline-block;
+    
     /* its like measurement systems, either work (i prefer px tho tbf) */
 }
 .small-div {
@@ -55,6 +55,7 @@ div {
     overflow: scroll;
     word-wrap: break-word;
     text-align: center;
+    display: inline-block;
     /* its like measurement systems, either work (i prefer px tho tbf) */
 }
 button {
