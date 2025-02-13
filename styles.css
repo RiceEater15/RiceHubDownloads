@@ -491,3 +491,59 @@ iframe {
     align-items: center;
     border-radius: 25px;
 
+    /* download carousel beware */
+.carousel {
+    position: relative;
+    max-width: 600px; 
+    margin: 0 auto; 
+}
+
+.carousel-inner {
+    display: flex; 
+}
+
+.carousel-item {
+    min-width: 100%; 
+    box-sizing: border-box; 
+    display: none; 
+}
+
+.carousel-item.active {
+    display: block; 
+}
+
+.download-buttons {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.carousel-control {
+    background-color: rgba(21, 90, 0, 0.8); 
+    border: none;
+    cursor: pointer;
+    padding: 10px; 
+    border-radius: 5px; 
+    font-size: 18px; 
+    color: #000000; 
+    transition: background-color 0.3s ease; 
+    margin: 0 10px; 
+}
+
+.carousel-control:hover {
+    background-color: rgb(241, 7, 46);
+}
+
+.download-button {
+    margin: 0 5px; 
+    text-decoration: none; 
+    padding: 10px 15px;
+    background-color: #00a800; 
+    border-radius: 5px; 
+    color: #ffffff;
+    transition: background-color 0.3s; 
+}
+
+.download-button:hover {
+    background-color: #094900; 
+}
