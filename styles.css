@@ -494,7 +494,11 @@ iframe {
     position: relative;
     align-items: center;
     border-radius: 25px;
-
+}
+.codex-img {
+    width:50%;
+    height:50%;
+}
     /* download carousel beware */
 .carousel {
     position: relative;
