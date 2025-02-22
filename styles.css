@@ -496,8 +496,12 @@ iframe {
     border-radius: 25px;
 }
 .codex-img {
-    width:20%;
-    height:20%;
+    width:50%;
+    height:50%;
+}
+.ca-img {
+    width:50%;
+    height:50%;
 }
     /* download carousel beware */
 .carousel {
