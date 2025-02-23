@@ -33,7 +33,7 @@
 <key>metadata</key>
 <dict>
 <key>bundle-identifier</key>
-<string>com.ricehub.deltamobile</string>
+<string>com.goop.deltamobile</string>
 <key>bundle-version</key>
 <string>2.59</string>
 <key>kind</key>
