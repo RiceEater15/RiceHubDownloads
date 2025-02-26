@@ -27,7 +27,7 @@
             <key>needs-shine</key>
             <false/>
             <key>url</key>
-            <stringhttps://rice-hub-downloads.vercel.app/Logo.jpeg</string>
+            <string>https://rice-hub-downloads.vercel.app/Logo.jpeg</string>
           </dict>
         </array>
         <key>metadata</key>
