@@ -19,7 +19,7 @@
 <key>needs-shine</key>
 <true/>
 <key>url</key>
-<string>https://rice-hub-downloads.vercel.app/Delta.jpeg</string>
+<string>https://deltaios-executor.com/AppIcon.png</string>
 </dict>
 <dict>
 <key>kind</key>
@@ -35,11 +35,11 @@
 <key>bundle-identifier</key>
 <string>com.gloop.deltamobile</string>
 <key>bundle-version</key>
-<string>2.59</string>
+<string>1</string>
 <key>kind</key>
 <string>software</string>
 <key>title</key>
-<string>Delta ios</string>
+<string>Delta</string>
 </dict>
 </dict>
 </array>
