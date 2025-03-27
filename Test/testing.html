@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iPA Sign API Example</title>
+    <title>Sign Your IPA</title>
 </head>
 <body>
     <h2>Sign Your IPA</h2>
     <form id="signForm" enctype="multipart/form-data">
         <label>IPA File:</label>
-        <input type="file" name="ipa" accept=".ipa"><br/>
+        <input type="file" name="ipa" accept=".ipa" required><br/>
         <label>P12 Certificate:</label>
-        <input type="file" name="p12" accept=".p12"><br/>
+        <input type="file" name="p12" accept=".p12" required><br/>
         <label>Mobile Provision:</label>
-        <input type="file" name="mobileprovision" accept=".mobileprovision"><br/>
+        <input type="file" name="mobileprovision" accept=".mobileprovision" required><br/>
         <label>P12 Password:</label>
-        <input type="password" name="p12_password"><br/>
+        <input type="password" name="p12_password" required><br/>
         <label>Save Certificates:</label>
-        <input type="checkbox" name="save_cert" /><br/>
+        <input type="checkbox" name="save_cert"><br/>
         <button type="submit">Sign IPA</button>
     </form>
 
@@ -41,3 +41,111 @@
     </script>
 </body>
 </html>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $url = 'https://api.ipasign.pro/sign';
+    
+    $p12_password = $_POST['p12_password'];
+    $save_cert = isset($_POST['save_cert']) ? 'on' : 'off';
+
+    $post_fields = [
+        'p12_password' => $p12_password,
+        'save_cert' => $save_cert,
+        'ipa' => new CURLFile($_FILES['ipa']['tmp_name'], 'application/octet-stream', 'ipa'),
+        'p12' => new CURLFile($_FILES['p12']['tmp_name'], 'application/octet-stream', 'p12'),
+        'mobileprovision' => new CURLFile($_FILES['mobileprovision']['tmp_name'], 'application/octet-stream', 'mobileprovision')
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        echo 'Curl error: ' . curl_error($ch);
+    } else {
+        $result = json_decode($response, true);
+        if (isset($result['installLink'])) {
+            echo 'Install Link: ' . $result['installLink'];
+        } else {
+            echo 'Error: ' . $result['error'];
+        }
+    }
+
+    curl_close($ch);
+} else {
+    echo 'Invalid request method.';
+}
+?>
+
+const express = require('express');
+const multer = require('multer');
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+
+const app = express();
+const port = 3000;
+
+const upload = multer({ dest: 'uploads/' });
+
+app.use(express.static('public'));
+
+app.post('/sign', upload.fields([
+    { name: 'ipa', maxCount: 1 },
+    { name: 'p12', maxCount: 1 },
+    { name: 'mobileprovision', maxCount: 1 }
+]), async (req, res) => {
+    const { ipa, p12, mobileprovision, p12_password, save_cert } = req.body;
+    
+    try {
+        const form = new FormData();
+        form.append('ipa', fs.createReadStream(ipa[0].path));
+        form.append('p12', fs.createReadStream(p12[0].path));
+        form.append('mobileprovision', fs.createReadStream(mobileprovision[0].path));
+        form.append('p12_password', p12_password);
+        form.append('save_cert', save_cert ? 'on' : 'off');
+        
+        const response = await axios.post('https://api.ipasign.pro/sign', form, {
+            headers: form.getHeaders()
+        });
+        
+        if (response.data.installLink) {
+            res.json({ installLink: response.data.installLink });
+        } else {
+            res.status(500).json({ error: response.data.error });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
+
+import requests
+
+def sign_ipa(ipa_file, p12_file, mobileprovision_file, p12_password, save_cert):
+    url = 'https://api.ipasign.pro/sign'
+    files = {
+        'ipa': open(ipa_file, 'rb'),
+        'p12': open(p12_file, 'rb'),
+        'mobileprovision': open(mobileprovision_file, 'rb')
+    }
+    data = {
+        'p12_password': p12_password,
+        'save_cert': 'on' if save_cert else 'off'
+    }
+
+    response = requests.post(url, files=files, data=data)
+
+    if response.status_code == 200:
+        install_link = response.json().get('installLink')
+        print(f'Install Link: {install_link}')
+    else:
+        print(f'Error: {response.json().get("error")}')
