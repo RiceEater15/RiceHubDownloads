@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPA Sign API Example</title>
+</head>
+<body>
+    <h2>Sign Your IPA</h2>
+    <form id="signForm" enctype="multipart/form-data">
+        <label>IPA File:</label>
+        <input type="file" name="ipa" accept=".ipa"><br/>
+        <label>P12 Certificate:</label>
+        <input type="file" name="p12" accept=".p12"><br/>
+        <label>Mobile Provision:</label>
+        <input type="file" name="mobileprovision" accept=".mobileprovision"><br/>
+        <label>P12 Password:</label>
+        <input type="password" name="p12_password"><br/>
+        <label>Save Certificates:</label>
+        <input type="checkbox" name="save_cert" /><br/>
+        <button type="submit">Sign IPA</button>
+    </form>
+
+    <pre id="response"></pre>
+
+    <script>
+        document.getElementById('signForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            try {
+                const res = await fetch('/sign', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
