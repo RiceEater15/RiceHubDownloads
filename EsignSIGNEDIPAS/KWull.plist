@@ -17,9 +17,9 @@
 			<key>metadata</key>
 			<dict>
 				<key>bundle-identifier</key>
-				<string>com.ksign.app</string>
+				<string>nya.asami.ksign</string>
 				<key>bundle-version</key>
-				<string>1.3</string>
+				<string>5</string>
 				<key>kind</key>
 				<string>software</string>
 				<key>title</key>
