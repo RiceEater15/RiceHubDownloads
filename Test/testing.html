@@ -1,272 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>IPA Signer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f2f2f2;
-        }
-
-        h2 {
-            text-align: center;
-        }
-
-        #uploadArea {
-            border: 2px dashed #999;
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            background-color: white;
-            cursor: pointer;
-        }
-
-        #uploadArea.dragover {
-            background-color: #e0e0e0;
-        }
-
-        .upload-result-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: white;
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        .upload-result-icon {
-            font-size: 24px;
-        }
-
-        .upload-result-status.success {
-            color: green;
-        }
-
-        .upload-result-status.error {
-            color: red;
-        }
-
-        .upload-result-info select,
-        .upload-result-info button {
-            margin-top: 5px;
-        }
-
-        #uploadProgress {
-            margin-top: 20px;
-            width: 100%;
-            background: #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            display: none;
-        }
-
-        #progressFill {
-            height: 20px;
-            width: 0%;
-            background-color: #4caf50;
-            transition: width 0.3s;
-        }
-
-        #progressText {
-            text-align: center;
-            margin-top: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>IPA Signer - Skibiti Tech AppStore</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+    .upload-box, .upload-result-item { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .upload-box h2 { margin: 0 0 10px; }
+    .upload-result-status.success { color: green; }
+    .upload-result-status.error { color: red; }
+    .cert-selection-container { margin-top: 10px; }
+    .cert-selection-label { display: block; margin-bottom: 5px; }
+    select, button.get-button { padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; }
+    .get-button:disabled { background: #ddd; cursor: not-allowed; }
+  </style>
 </head>
 <body>
 
-<h2>IPA Signer</h2>
+  <div class="upload-box">
+    <h2>Upload IPA</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="ipa" accept=".ipa" required>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
 
-<div id="uploadArea">
-    <p>Drag & drop your .ipa files here or click to upload</p>
-    <input type="file" id="fileInput" accept=".ipa" multiple style="display: none;">
-</div>
+  <div id="uploadResults"></div>
 
-<div id="uploadProgress">
-    <div id="progressFill"></div>
-</div>
-<div id="progressText"></div>
-
-<div id="uploadResults"></div>
-
-<script>
-    const uploadArea = document.getElementById('uploadArea');
-    const fileInput = document.getElementById('fileInput');
-    const uploadProgress = document.getElementById('uploadProgress');
-    const progressFill = document.getElementById('progressFill');
-    const progressText = document.getElementById('progressText');
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
     const uploadResults = document.getElementById('uploadResults');
 
-    function isIOS() {
-        return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    }
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    if (!isIOS()) {
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
+      const formData = new FormData(uploadForm);
+      const response = await fetch('https://skibiditech.co/upload_ipa.php', {
+        method: 'POST',
+        body: formData
+      });
 
-        uploadArea.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-        });
+      const result = await response.json();
 
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const files = Array.from(e.dataTransfer.files).filter(file => file.name.endsWith('.ipa'));
-            if (files.length > 0) {
-                handleFileUpload(files);
-            } else {
-                showUploadResult('❌', 'No IPA files', 'Please select valid IPA files', 'error');
-            }
-        });
-    }
-
-    uploadArea.addEventListener('click', () => {
-        fileInput.click();
+      if (result.state === true) {
+        showUploadResult("📱", result.name, "Upload successful!", "success", result.app);
+      } else {
+        showUploadResult("❌", result.name || "Unknown", result.state, "error", null);
+      }
     });
 
-    fileInput.addEventListener('change', (e) => {
-        const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            handleFileUpload(files);
-        }
-    });
+    function showUploadResult(icon, name, status, type, id) {
+      const resultItem = document.createElement('div');
+      resultItem.className = 'upload-result-item';
+      resultItem.innerHTML = `
+        <div class="upload-result-icon">${icon}</div>
+        <div class="upload-result-info">
+          <div class="upload-result-name">${name}</div>
+          <div class="upload-result-status ${type}">${status}</div>
+          ${type === 'success' ? `
+          <div class="cert-selection-container">
+            <label class="cert-selection-label" for="certs-${id}">Choose Certificate:</label>
+            <select name="certs" id="certs-${id}">
+              <option value="1">WULIN</option>
+              <option value="2">EEO1</option>
+              <option value="3">EEO2</option>
+              <option value="4">EEO3</option>
+              <option value="5">TCL1</option>
+              <option value="6">TCL2</option>
+              <option value="7">TCL3</option>
+              <option value="8">TCL4</option>
+              <option value="9">TCL5</option>
+            </select>
+            <button class="get-button" id="sign_button_${id}" onclick="sign('${id}')">Sign</button>
+          </div>` : ''}
+        </div>
+      `;
+      uploadResults.appendChild(resultItem);
+    }
 
-    function handleFileUpload(files) {
-        uploadResults.innerHTML = '';
-        uploadProgress.style.display = 'block';
-        progressFill.style.width = '0%';
-        progressText.textContent = 'Preparing upload...';
+    async function sign(id) {
+      const select = document.getElementById(`certs-${id}`);
+      const button = document.getElementById(`sign_button_${id}`);
+      const cert = select.value;
 
-        const formData = new FormData();
-        files.forEach(file => {
-            formData.append('files[]', file);
+      button.disabled = true;
+      button.textContent = "Signing...";
+
+      try {
+        const response = await fetch(`https://skibiditech.co/sign.php?app=${id}&cert=${cert}&rid=${Math.random()}`, {
+          method: "POST"
         });
 
-        const xhr = new XMLHttpRequest();
-        xhr.upload.addEventListener('progress', (e) => {
-            if (e.lengthComputable) {
-                const percentComplete = (e.loaded / e.total) * 100;
-                progressFill.style.width = percentComplete + '%';
-                progressText.textContent = `Uploading... ${Math.round(percentComplete)}%`;
-            }
-        });
+        const result = await response.json();
 
-        xhr.addEventListener('load', () => {
-            uploadProgress.style.display = 'none';
-            try {
-                const response = JSON.parse(xhr.responseText);
-                processUploadResponse(response);
-            } catch (error) {
-                showUploadResult('❌', 'Server Error', 'Invalid response from server', 'error');
-            }
-        });
-
-        xhr.addEventListener('error', () => {
-            uploadProgress.style.display = 'none';
-            showUploadResult('❌', 'Network Error', 'Failed to connect to server', 'error');
-        });
-
-        xhr.open('POST', 'upload_ipa.php');
-        xhr.send(formData);
-    }
-
-    function processUploadResponse(response) {
-        if (response.data?.uploaded_files) {
-            response.data.uploaded_files.forEach((file, index) => {
-                const id = response.name || file.original_name;
-                setTimeout(() => {
-                    showUploadResult('✅', file.original_name, `Uploaded (${formatFileSize(file.size)})`, 'success', id);
-                }, index * 200);
-            });
+        if (result.state === true) {
+          button.textContent = "Install";
+          button.disabled = false;
+          button.onclick = () => {
+            const manifestUrl = `https://skibiditech.co/generate_plist.php?app=${id}&rid=${Math.random()}`;
+            const a = document.createElement("a");
+            a.href = `itms-services://?action=download-manifest&url=${encodeURIComponent(manifestUrl)}`;
+            a.click();
+          };
+        } else {
+          alert("Error: " + result.state);
+          button.textContent = "Sign";
+          button.disabled = false;
         }
-
-        if (response.data?.errors) {
-            response.data.errors.forEach((error, index) => {
-                setTimeout(() => {
-                    showUploadResult('❌', 'Error', error, 'error');
-                }, (response.data.uploaded_files?.length || 0) * 200 + index * 200);
-            });
-        }
+      } catch (err) {
+        console.error("Signing failed:", err);
+        alert("Signing failed. Check network or server.");
+        button.textContent = "Sign";
+        button.disabled = false;
+      }
     }
+  </script>
 
-    function showUploadResult(icon, name, status, type, appId) {
-        const uniqueId = `upload_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-        const resultItem = document.createElement('div');
-        resultItem.className = 'upload-result-item';
-
-        resultItem.innerHTML = `
-            <div class="upload-result-icon">${icon}</div>
-            <div class="upload-result-info">
-                <div class="upload-result-name">${name}</div>
-                <div class="upload-result-status ${type}">${status}</div>
-                ${appId ? `
-                    <select id="certs_${uniqueId}">
-                        <option value="1">WULIN</option>
-                        <option value="2">EEO1</option>
-                        <option value="3">EEO2</option>
-                        <option value="4">EEO3</option>
-                        <option value="5">TCL1</option>
-                        <option value="6">TCL2</option>
-                        <option value="7">TCL3</option>
-                        <option value="8">TCL4</option>
-                        <option value="9">TCL5</option>
-                    </select>
-                    <button onclick="sign('${appId}', '${uniqueId}')" id="sign_button_${uniqueId}">Sign</button>
-                ` : ''}
-            </div>
-        `;
-        uploadResults.appendChild(resultItem);
-    }
-
-    async function sign(appId, uniqueId) {
-        const certSelect = document.getElementById(`certs_${uniqueId}`);
-        const signButton = document.getElementById(`sign_button_${uniqueId}`);
-        const selectedCert = certSelect.value;
-
-        certSelect.style.display = 'none';
-        signButton.style.display = 'none';
-
-        try {
-            const status = await fetch(`https://skibiditech.co/sign.php?app=${appId}&cert=${selectedCert}&rid=${Math.random()}`, {
-                method: "POST"
-            });
-            const json = await status.json();
-
-            if (json.state) {
-                signButton.style.display = 'block';
-                signButton.innerText = "Install";
-                signButton.onclick = () => {
-                    const manifestUrl = `https://skibiditech.co/generate_plist.php?app=${appId}&rid=${Math.random()}`;
-                    const a = document.createElement("a");
-                    a.href = `itms-services://?action=download-manifest&url=${encodeURIComponent(manifestUrl)}`;
-                    a.style.display = "none";
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                };
-            } else {
-                alert(json.state);
-            }
-        } catch (error) {
-            alert("Signing failed. Check your internet connection.");
-        }
-    }
-
-    function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
-</script>
 </body>
 </html>
